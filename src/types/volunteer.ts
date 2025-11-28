@@ -1,10 +1,15 @@
 export interface Volunteer {
   id: string
-  nombre: string
-  apellido: string
-  email: string
+  nombres: string
+  primerApellido: string
+  segundoApellido: string
+  tipoDocumento: string
+  numeroDocumento: string
+  nacionalidad: string
+  fechaNacimiento: Date
+  genero: string
   telefono: string
-  rut: string
+  email: string
   region: string
   comuna: string
   instituto: string
@@ -27,15 +32,14 @@ export interface DashboardStats {
   voluntariosPorTipo: { tipo: string; count: number }[]
   participacionMensual: { mes: string; participantes: number }[]
 }
-
 export interface FilterOptions {
-  region?: string
-  instituto?: string
-  estadoVoluntario?: string
-  tipoVoluntariado?: string
-  campana?: string
-  habilidad?: string
-  searchTerm?: string
+  region?: string;
+  instituto?: string;
+  estadoVoluntario?: "activo" | "inactivo" | "pendiente";
+  tipoVoluntariado?: string | string[];
+  campana?: string | string[];
+  habilidad?: string | string[];
+  searchTerm?: string;
 }
 
 export interface SegmentationResult {

@@ -135,19 +135,34 @@ export const RPAHelpers = {
   },
 
   // Normaliza formato de datos
-  normalizeVolunteerData: (data: Record<string, unknown>): Partial<Volunteer> => {
-    const d = data as Record<string, string | undefined>;
-    return {
-      nombre: d.nombre?.trim(),
-      apellido: d.apellido?.trim(),
-      email: d.email?.toLowerCase().trim(),
-      telefono: d.telefono?.replace(/[^0-9+]/g, ""),
-      rut: d.rut?.replace(/[^0-9kK-]/g, ""),
-      region: d.region?.trim(),
-      // ... otros campos
-    }
-  },
-
+ // Normaliza formato de datos desde la API hacia Volunteer
+normalizeVolunteerData: (data: Record<string, unknown>): Partial<Volunteer> => {
+  const d = data as Record<string, string | undefined>;
+  return {
+    nombres: d.nombres?.trim(),
+    primerApellido: d.primerAapellido?.trim(),
+    segundoApellido: d.segundoApellido?.trim(),
+    tipoDocumento: d.tipoDocumento?.trim(),
+    numeroDocumento: d.numeroDocumento?.replace(/[^0-9kK-]/g, ""), // limpia RUT/DNI
+    nacionalidad: d.nacionalidad?.trim(),
+    fechaNacimiento: d.fechaNacimiento ? new Date(d.fechaNacimiento) : undefined,
+    genero: d.genero?.trim(),
+    telefono: d.telefono?.replace(/[^0-9+]/g, ""),
+    email: d.email?.toLowerCase().trim(),
+    region: d.region?.trim(),
+    comuna: d.comuna?.trim(),
+    instituto: d.instituto?.trim(),
+    ocupacion: d.ocupacion?.trim(),
+    estadoVoluntario: d.estadoVoluntario as "activo" | "inactivo" | "pendiente" | undefined,
+    tipoVoluntariado: d.tipoVoluntariado?.split(",").map(v => v.trim()) ?? [],
+    habilidades: d.habilidades?.split(",").map(v => v.trim()) ?? [],
+    disponibilidad: d.disponibilidad?.trim(),
+    campanasParticipadas: d.campanasParticipadas?.split(",").map(v => v.trim()) ?? [],
+    capacitaciones: d.capacitaciones?.split(",").map(v => v.trim()) ?? [],
+    fechaRegistro: d.fechaRegistro?.trim(),
+    ultimaParticipacion: d.ultimaParticipacion?.trim(),
+  };
+},
   // Genera ID único
   generateVolunteerId: (): string => {
     return `VOL-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`

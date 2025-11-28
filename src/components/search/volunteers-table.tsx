@@ -49,7 +49,7 @@ export function VolunteersTable({ volunteers, totalCount, searchDuration }: Volu
                 <div className="space-y-2 flex-1">
                   <div className="flex items-center gap-3">
                     <h3 className="font-semibold text-foreground">
-                      {volunteer.nombre} {volunteer.apellido}
+                      {volunteer.nombres} {volunteer.primerApellido}
                     </h3>
                     <Badge className={getStatusColor(volunteer.estadoVoluntario)}>{volunteer.estadoVoluntario}</Badge>
                   </div>

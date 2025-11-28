@@ -31,26 +31,37 @@ export async function POST(request: NextRequest) {
       volunteers = volunteers.filter((v) => v.estadoVoluntario === filters.estadoVoluntario)
     }
 
-    if (filters.tipoVoluntariado) {
-      volunteers = volunteers.filter((v) => v.tipoVoluntariado.includes(filters.tipoVoluntariado))
-    }
+if (filters.tipoVoluntariado) {
+  const tiposVoluntariado = Array.isArray(filters.tipoVoluntariado)
+    ? filters.tipoVoluntariado
+    : [filters.tipoVoluntariado];
+
+  volunteers = volunteers.filter((v) =>
+    tiposVoluntariado.every((t) => v.tipoVoluntariado.includes(t))
+  );
+}
 
     if (filters.campana) {
-      volunteers = volunteers.filter((v) => v.campanasParticipadas.includes(filters.campana))
+      const campanasParticipadas = Array.isArray(filters.campana) ? filters.campana : [filters.campana]
+      volunteers = volunteers.filter((v) => 
+        campanasParticipadas.every((h) => v.campanasParticipadas.includes(h))
+    );
     }
 
     if (filters.habilidad) {
-      volunteers = volunteers.filter((v) => v.habilidades.includes(filters.habilidad))
-    }
-
+    const habilidades = Array.isArray(filters.habilidad) ? filters.habilidad : [filters.habilidad];
+    volunteers = volunteers.filter((v) =>
+      habilidades.every((h) => v.habilidades.includes(h))
+    );
+}
     if (filters.searchTerm) {
       const term = filters.searchTerm.toLowerCase()
       volunteers = volunteers.filter(
         (v) =>
-          v.nombre.toLowerCase().includes(term) ||
-          v.apellido.toLowerCase().includes(term) ||
+          v.nombres.toLowerCase().includes(term) ||
+          v.primerApellido.toLowerCase().includes(term) ||
           v.email.toLowerCase().includes(term) ||
-          v.rut.includes(term),
+          v.numeroDocumento.includes(term),
       )
     }
 

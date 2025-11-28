@@ -103,46 +103,61 @@ export function generateMockVolunteers(count = 500): Volunteer[] {
       "Rojas",
     ][Math.floor(Math.random() * 10)]
 
-    volunteers.push({
-      id: `VOL-${String(i + 1).padStart(6, "0")}`,
-      nombre: firstName,
-      apellido: lastName,
-      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}${i}@email.com`,
-      telefono: `+569${Math.floor(10000000 + Math.random() * 90000000)}`,
-      rut: `${Math.floor(10000000 + Math.random() * 15000000)}-${Math.floor(Math.random() * 10)}`,
-      region: REGIONES_CHILE[Math.floor(Math.random() * REGIONES_CHILE.length)],
-      comuna: `Comuna ${Math.floor(Math.random() * 50) + 1}`,
-      instituto: INSTITUTOS_DUOC[Math.floor(Math.random() * INSTITUTOS_DUOC.length)],
-      ocupacion: ["Estudiante", "Profesional", "Técnico", "Independiente"][Math.floor(Math.random() * 4)],
-      estadoVoluntario: ["activo", "activo", "activo", "inactivo", "pendiente"][Math.floor(Math.random() * 5)] as any,
-      tipoVoluntariado: [
-        TIPOS_VOLUNTARIADO[Math.floor(Math.random() * TIPOS_VOLUNTARIADO.length)],
-        ...(Math.random() > 0.5 ? [TIPOS_VOLUNTARIADO[Math.floor(Math.random() * TIPOS_VOLUNTARIADO.length)]] : []),
-      ],
-      habilidades: [
-        HABILIDADES[Math.floor(Math.random() * HABILIDADES.length)],
-        HABILIDADES[Math.floor(Math.random() * HABILIDADES.length)],
-        ...(Math.random() > 0.7 ? [HABILIDADES[Math.floor(Math.random() * HABILIDADES.length)]] : []),
-      ].filter((v, i, a) => a.indexOf(v) === i),
-      disponibilidad: ["Fines de semana", "Entre semana", "Flexible", "Solo eventos especiales"][
-        Math.floor(Math.random() * 4)
-      ],
-      campanasParticipadas: CAMPANAS.slice(0, Math.floor(Math.random() * 4) + 1),
-      capacitaciones: ["Primeros Auxilios Básicos", "Atención al Público", "Trabajo en Equipo"].slice(
-        0,
-        Math.floor(Math.random() * 3),
-      ),
-      fechaRegistro: new Date(
-        2020 + Math.floor(Math.random() * 5),
-        Math.floor(Math.random() * 12),
-        Math.floor(Math.random() * 28) + 1,
-      ).toISOString(),
-      ultimaParticipacion: new Date(
-        2023 + Math.floor(Math.random() * 2),
-        Math.floor(Math.random() * 12),
-        Math.floor(Math.random() * 28) + 1,
-      ).toISOString(),
-    })
+    const ESTADOS_VOLUNTARIO = ["activo", "inactivo", "pendiente"] as const;
+
+volunteers.push({
+  id: `VOL-${String(i + 1).padStart(6, "0")}`,
+  nombres: firstName,
+  primerApellido: lastName,
+  segundoApellido: lastName,
+  tipoDocumento: ["RUN", "Pasaporte", "DNI"][Math.floor(Math.random() * 3)],
+  numeroDocumento: `${Math.floor(10000000 + Math.random() * 15000000)}-${Math.floor(Math.random() * 10)}`,
+  nacionalidad: ["Chilena", "Argentina", "Peruana", "Colombiana"][Math.floor(Math.random() * 4)],
+  fechaNacimiento: new Date(
+    1970 + Math.floor(Math.random() * 30), // entre 1970 y 2000
+    Math.floor(Math.random() * 12),
+    Math.floor(Math.random() * 28) + 1
+  ),
+  genero: ["Femenino", "Masculino", "Otro"][Math.floor(Math.random() * 3)],
+  telefono: `+569${Math.floor(10000000 + Math.random() * 90000000)}`,
+  email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}${i}@email.com`,
+  region: REGIONES_CHILE[Math.floor(Math.random() * REGIONES_CHILE.length)],
+  comuna: `Comuna ${Math.floor(Math.random() * 50) + 1}`,
+  instituto: INSTITUTOS_DUOC[Math.floor(Math.random() * INSTITUTOS_DUOC.length)],
+  ocupacion: ["Estudiante", "Profesional", "Técnico", "Independiente"][Math.floor(Math.random() * 4)],
+  estadoVoluntario: ESTADOS_VOLUNTARIO[Math.floor(Math.random() * ESTADOS_VOLUNTARIO.length)],
+  tipoVoluntariado: Array.from(
+    new Set([
+      TIPOS_VOLUNTARIADO[Math.floor(Math.random() * TIPOS_VOLUNTARIADO.length)],
+      ...(Math.random() > 0.5 ? [TIPOS_VOLUNTARIADO[Math.floor(Math.random() * TIPOS_VOLUNTARIADO.length)]] : [])
+    ])
+  ),
+  habilidades: Array.from(
+    new Set([
+      HABILIDADES[Math.floor(Math.random() * HABILIDADES.length)],
+      HABILIDADES[Math.floor(Math.random() * HABILIDADES.length)],
+      ...(Math.random() > 0.7 ? [HABILIDADES[Math.floor(Math.random() * HABILIDADES.length)]] : [])
+    ])
+  ),
+  disponibilidad: ["Fines de semana", "Entre semana", "Flexible", "Solo eventos especiales"][
+    Math.floor(Math.random() * 4)
+  ],
+  campanasParticipadas: CAMPANAS.slice(0, Math.floor(Math.random() * 4) + 1),
+  capacitaciones: ["Primeros Auxilios Básicos", "Atención al Público", "Trabajo en Equipo"].slice(
+    0,
+    Math.floor(Math.random() * 3)
+  ),
+  fechaRegistro: new Date(
+    2020 + Math.floor(Math.random() * 5),
+    Math.floor(Math.random() * 12),
+    Math.floor(Math.random() * 28) + 1
+  ).toISOString(),
+  ultimaParticipacion: new Date(
+    2023 + Math.floor(Math.random() * 2),
+    Math.floor(Math.random() * 12),
+    Math.floor(Math.random() * 28) + 1
+  ).toISOString(),
+  })
   }
 
   return volunteers

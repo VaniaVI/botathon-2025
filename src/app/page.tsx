@@ -8,6 +8,7 @@ import { VolunteerTypeChart } from "@/components/dashboard/volunteer-type-chart"
 import type { DashboardStats } from "@/types/volunteer"
 import { initializeMockData } from "@/lib/mock-data"
 import { Loader2 } from "lucide-react"
+import Image from "next/image";
 
 export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
@@ -56,19 +57,36 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">CRM Voluntarios Teletón</h1>
-              <p className="mt-1 text-muted-foreground">Sistema de Gestión de Voluntariado - Botathon 2025</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="h-12 w-12 rounded-full bg-primary" />
-            </div>
-          </div>
-        </div>
-      </header>
+<header className="border-b border-border bg-card">
+  <div className="container mx-auto px-4 py-6">
+    
+    <div className="flex flex-wrap items-center gap-6 sm:gap-10">
+
+      {/* LOGO */}
+      <Image
+        src="/logo_teleton.png"
+        alt="Logo Teleton"
+        width={200}
+        height={100}
+        className="w-32 sm:w-48 h-auto"
+      />
+
+      {/* TEXTO */}
+      <div className="flex flex-col">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+          CRM Voluntarios Teletón
+        </h1>
+
+        <p className="mt-1 text-sm sm:text-base text-muted-foreground">
+          Sistema de Gestión de Voluntariado - Botathon 2025
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+</header>
+
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">

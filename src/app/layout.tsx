@@ -12,20 +12,20 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "CRM Voluntarios Teletón | Botathon 2025",
+  title: "CRM Voluntarios Teletón",
   description: "Sistema de gestión de voluntarios con Blue Prism RPA - MVP Botathon 2025",
   icons: {
     icon: [
       {
-        url: "/icon-light-32x32.png",
+        url: "/Logo_Teleton.svg",
         media: "(prefers-color-scheme: light)",
       },
       {
-        url: "/icon-dark-32x32.png",
+        url: "/Logo_Teleton.svg",
         media: "(prefers-color-scheme: dark)",
       },
       {
-        url: "/icon.svg",
+        url: "/Logo_Teleton.svg",
         type: "image/svg+xml",
       },
     ],
