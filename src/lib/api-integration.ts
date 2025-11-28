@@ -64,7 +64,7 @@ export const DATABASE_CONFIG = {
 }
 
 // 🔵 BLUE PRISM INTEGRATION FUNCTIONS
-export async function triggerBluePrismProcess(processName: string, parameters: any) {
+export async function triggerBluePrismProcess(processName: string, parameters: Record<string, unknown>) {
   /**
    * Dispara un proceso de Blue Prism
    * Blue Prism debe exponer este endpoint REST API
@@ -109,7 +109,7 @@ export async function getBluePrismProcessStatus(processId: string) {
 }
 
 // 🔵 DATABASE INTEGRATION FUNCTIONS
-export async function executeDatabaseQuery(query: string, params: any[] = []) {
+export async function executeDatabaseQuery(query: string, params: unknown[] = []) {
   /**
    * CONECTAR AQUÍ CON TU BASE DE DATOS
    * Ejemplo con PostgreSQL, MySQL, etc.
@@ -130,19 +130,20 @@ export async function executeDatabaseQuery(query: string, params: any[] = []) {
 // Funciones auxiliares para RPA
 export const RPAHelpers = {
   // Valida datos antes de insertar
-  validateVolunteerData: (data: any): boolean => {
+  validateVolunteerData: (data: Record<string, unknown>): boolean => {
     return !!(data.nombre && data.email && data.rut)
   },
 
   // Normaliza formato de datos
-  normalizeVolunteerData: (data: any): Partial<Volunteer> => {
+  normalizeVolunteerData: (data: Record<string, unknown>): Partial<Volunteer> => {
+    const d = data as Record<string, string | undefined>;
     return {
-      nombre: data.nombre?.trim(),
-      apellido: data.apellido?.trim(),
-      email: data.email?.toLowerCase().trim(),
-      telefono: data.telefono?.replace(/[^0-9+]/g, ""),
-      rut: data.rut?.replace(/[^0-9kK-]/g, ""),
-      region: data.region?.trim(),
+      nombre: d.nombre?.trim(),
+      apellido: d.apellido?.trim(),
+      email: d.email?.toLowerCase().trim(),
+      telefono: d.telefono?.replace(/[^0-9+]/g, ""),
+      rut: d.rut?.replace(/[^0-9kK-]/g, ""),
+      region: d.region?.trim(),
       // ... otros campos
     }
   },
