@@ -55,11 +55,10 @@ export const DATABASE_CONFIG = {
 
   // Tablas de la base de datos
   TABLES: {
-    VOLUNTEERS: "volunteers",
-    CAMPAIGNS: "campaigns",
-    PARTICIPATIONS: "participations",
-    SKILLS: "skills",
-    COMMUNICATIONS: "communications",
+    VOLUNTEERS: "volunteer",
+    VOLUNTEERS_STATE: "volunteer_state",
+    SEXO: "sexo",
+    REGION: "region",
   },
 }
 
@@ -144,15 +143,12 @@ normalizeVolunteerData: (data: Record<string, unknown>): Partial<Volunteer> => {
     segundoApellido: d.segundoApellido?.trim(),
     tipoDocumento: d.tipoDocumento?.trim(),
     numeroDocumento: d.numeroDocumento?.replace(/[^0-9kK-]/g, ""), // limpia RUT/DNI
-    nacionalidad: d.nacionalidad?.trim(),
     fechaNacimiento: d.fechaNacimiento ? new Date(d.fechaNacimiento) : undefined,
     genero: d.genero?.trim(),
     telefono: d.telefono?.replace(/[^0-9+]/g, ""),
     email: d.email?.toLowerCase().trim(),
     region: d.region?.trim(),
     comuna: d.comuna?.trim(),
-    instituto: d.instituto?.trim(),
-    ocupacion: d.ocupacion?.trim(),
     estadoVoluntario: d.estadoVoluntario as "activo" | "inactivo" | "pendiente" | undefined,
     tipoVoluntariado: d.tipoVoluntariado?.split(",").map(v => v.trim()) ?? [],
     habilidades: d.habilidades?.split(",").map(v => v.trim()) ?? [],

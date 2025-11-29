@@ -5,15 +5,12 @@ export interface Volunteer {
   segundoApellido: string
   tipoDocumento: string
   numeroDocumento: string
-  nacionalidad: string
   fechaNacimiento: Date
   genero: string
   telefono: string
   email: string
   region: string
   comuna: string
-  instituto: string
-  ocupacion: string
   estadoVoluntario: "activo" | "inactivo" | "pendiente"
   tipoVoluntariado: string[]
   habilidades: string[]
@@ -34,7 +31,6 @@ export interface DashboardStats {
 }
 export interface FilterOptions {
   region?: string;
-  instituto?: string;
   estadoVoluntario?: "activo" | "inactivo" | "pendiente";
   tipoVoluntariado?: string;  
   campana?: string;           
