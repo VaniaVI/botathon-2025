@@ -19,17 +19,39 @@ export default function SearchPage() {
   const [habilidades, setHabilidades] = useState<string[]>([])
   const [campanas, setCampanas] = useState<string[]>([])
 
-  // 🔹 Traer datos iniciales de filtros desde la API
+  // 🔹 Traer filtros iniciales
   useEffect(() => {
     const fetchFilterData = async () => {
       try {
-        const response = await fetch("/api/volunteers/filters")
+        // Regiones
+        const regionsResponse = await fetch("/api/regions")
+        const regionsData = await regionsResponse.json()
+        setRegiones(regionsData.map((r: { region: string }) => r.region))
+
+        // Habilidades
+        const habilitiesResponse = await fetch("/api/habilidad")
+        const habilitiesData = await habilitiesResponse.json()
+        setHabilidades(habilitiesData.map((h: { habilidad: string }) => h.habilidad))
+
+        // Tipos de voluntariado
+        const tiposResponse = await fetch("/api/tipoVoluntariado")
+        const tiposData = await tiposResponse.json()
+        setTiposVoluntariado(tiposData.map((t: { tipo_voluntariado: string }) => t.tipo_voluntariado))
+
+        // Campañas
+        const campanasResponse = await fetch("/api/campana")
+        const campanasData = await campanasResponse.json()
+        setCampanas(campanasData.map((c: { programa_campana: string }) => c.programa_campana))
+
+        // Traer voluntarios iniciales
+        const response = await fetch("/api/volunteers/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        })
         const result = await response.json()
         if (result.success) {
-          setRegiones(result.data.regiones || [])
-          setTiposVoluntariado(result.data.tiposVoluntariado || [])
-          setHabilidades(result.data.habilidades || [])
-          setCampanas(result.data.campanas || [])
+          setVolunteers(result.data)
         }
       } catch (error) {
         console.error("[FILTER DATA ERROR]", error)
@@ -41,16 +63,13 @@ export default function SearchPage() {
 
   const handleSearch = async () => {
     setLoading(true)
-
     try {
       const response = await fetch("/api/volunteers/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(filters),
       })
-
       const result = await response.json()
-
       if (result.success) {
         setVolunteers(result.data)
         setTotalCount(result.count)

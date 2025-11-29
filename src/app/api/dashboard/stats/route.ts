@@ -26,9 +26,10 @@ export async function GET(request: NextRequest) {
              v.created_at
       FROM volunteer v
       LEFT JOIN region r ON v.regionpostulante = r.id
-      LEFT JOIN tipo_voluntario t ON v.tipo_voluntariado = t.id
+      LEFT JOIN tipo_voluntariado t ON v.tipo_voluntariado = t.id
       LEFT JOIN programa_campana c ON v.campana = c.id
     `)
+    console.log("Voluntarios obtenidos de la BD:", volunteers);
 
     const totalVoluntarios = volunteers.length
     const voluntariosActivos = volunteers.filter(v => v.estadoVoluntario === 1).length

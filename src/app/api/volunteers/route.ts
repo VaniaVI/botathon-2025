@@ -6,17 +6,20 @@ export async function GET(request: NextRequest) {
   try {
     const sql = `
       SELECT 
-        nombres AS "Nombres",
-        apellidop AS "ApellidoP",
-        apellidom AS "ApellidoM",
-        fechanacimiento AS "FechaNacimiento",
-        sexo AS "Sexo",
-        regionpostulante AS "RegionPostulante",
-        comunapostulante AS "ComunaPostulante",
-        estado AS "Estado",
-        email AS "Email",
-        telefono AS "Telefono",
-        rut AS "Rut",
+        nombres AS Nombres,
+        apellidop AS ApellidoP,
+        apellidom AS ApellidoM,
+        fechanacimiento AS FechaNacimiento,
+        sexo AS Sexo,
+        regionpostulante AS RegionPostulante,
+        comunapostulante AS ComunaPostulante,
+        estado AS Estado,
+        email AS Email,
+        telefono AS Telefono,
+        rut AS Rut,
+        campana AS Campana,
+        tipovoluntariado AS TipoVoluntariado,
+        habilidad AS Habilidad,
         created_at,
         updated_at
       FROM volunteer;
@@ -37,30 +40,20 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json() as Partial<Volunteer>;
+    const body = (await request.json()) as Partial<Volunteer>;
 
     if (!body.Nombres || !body.ApellidoP || !body.ApellidoM) {
-      return NextResponse.json({ success: false, error: "Missing volunteer identifiers" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Missing volunteer identifiers" },
+        { status: 400 }
+      );
     }
 
-    const sql = `
+    // MySQL UPDATE con ? y sin RETURNING
+    const updateSql = `
       UPDATE volunteer
-      SET email = $1, telefono = $2, rut = $3
-      WHERE nombres = $4 AND apellidop = $5 AND apellidom = $6
-      RETURNING 
-        nombres AS "Nombres",
-        apellidop AS "ApellidoP",
-        apellidom AS "ApellidoM",
-        fechanacimiento AS "FechaNacimiento",
-        sexo AS "Sexo",
-        regionpostulante AS "RegionPostulante",
-        comunapostulante AS "ComunaPostulante",
-        estado AS "Estado",
-        email AS "Email",
-        telefono AS "Telefono",
-        rut AS "Rut",
-        created_at,
-        updated_at;
+      SET email = ?, telefono = ?, rut = ?
+      WHERE nombres = ? AND apellidop = ? AND apellidom = ?
     `;
 
     const params = [
@@ -72,15 +65,45 @@ export async function POST(request: NextRequest) {
       body.ApellidoM,
     ];
 
-    const result = await query<Volunteer>(sql, params);
+    await query(updateSql, params);
+
+    // Traer el registro actualizado
+    const selectSql = `
+      SELECT 
+        nombres AS Nombres,
+        apellidop AS ApellidoP,
+        apellidom AS ApellidoM,
+        fechanacimiento AS FechaNacimiento,
+        sexo AS Sexo,
+        regionpostulante AS RegionPostulante,
+        comunapostulante AS ComunaPostulante,
+        estado AS Estado,
+        email AS Email,
+        telefono AS Telefono,
+        rut AS Rut,
+        created_at,
+        updated_at
+      FROM volunteer
+      WHERE nombres = ? AND apellidop = ? AND apellidom = ?
+      LIMIT 1
+    `;
+
+    const updatedVolunteers = await query<Volunteer>(selectSql, [
+      body.Nombres,
+      body.ApellidoP,
+      body.ApellidoM,
+    ]);
 
     return NextResponse.json({
       success: true,
       message: "Volunteer updated successfully",
-      data: result[0] || null,
+      data: updatedVolunteers[0] || null,
     });
   } catch (error) {
     console.error("[API ERROR]", error);
-    return NextResponse.json({ success: false, error: "Error updating volunteer" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Error updating volunteer" },
+      { status: 500 }
+    );
   }
 }

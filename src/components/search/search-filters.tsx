@@ -26,7 +26,7 @@ export function SearchFilters({
   filters,
   onFilterChange,
   onSearch,
-  onClear,
+  onClear,  
   loading,
   regiones = [],
   tiposVoluntariado = [],
