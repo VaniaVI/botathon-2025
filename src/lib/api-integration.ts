@@ -51,7 +51,7 @@ export const BLUEPRISM_CONFIG = {
 // 🔵 DATABASE CONFIG
 export const DATABASE_CONFIG = {
   // Configurar string de conexión a la base de datos
-  CONNECTION_STRING: process.env.DATABASE_URL || "postgresql://localhost:5432/teleton_crm",
+  CONNECTION_STRING: process.env.DATABASE_URL || "postgresql://neondb_owner:npg_NbUp9zgJ4yhe@ep-plain-voice-a4o7lvqb-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
 
   // Tablas de la base de datos
   TABLES: {
