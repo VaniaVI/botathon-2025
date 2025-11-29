@@ -1,5 +1,5 @@
 "use client"
-
+import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { SearchFilters } from "@/components/search/search-filters"
 import { VolunteersTable } from "@/components/search/volunteers-table"
@@ -9,6 +9,7 @@ import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 export default function SearchPage() {
+  const router = useRouter()
   const [filters, setFilters] = useState<FilterOptions>({})
   const [volunteers, setVolunteers] = useState<Volunteer[]>([])
   const [totalCount, setTotalCount] = useState(0)
@@ -19,6 +20,18 @@ export default function SearchPage() {
   const [tiposVoluntariado, setTiposVoluntariado] = useState<string[]>([])
   const [habilidades, setHabilidades] = useState<string[]>([])
   const [campanas, setCampanas] = useState<string[]>([])
+  const [authChecked, setAuthChecked] = useState(false)
+
+  useEffect(() => {
+    const isAuth =
+      typeof window !== "undefined" ? localStorage.getItem("isAuthenticated") : null
+
+    if (isAuth !== "true") {
+      router.push("/login")
+    } else {
+      setAuthChecked(true)
+    }
+  }, [router])
 
   // 🔹 Traer filtros iniciales
   useEffect(() => {

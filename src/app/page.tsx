@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { StatsCards } from "@/components/dashboard/stats-cards"
 import { ParticipationChart } from "@/components/dashboard/participation-chart"
 import { RegionDistribution } from "@/components/dashboard/region-distribution"
@@ -10,10 +11,30 @@ import { Loader2 } from "lucide-react"
 import Image from "next/image"
 
 export default function Dashboard() {
+  const router = useRouter()
+
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // para no mostrar nada hasta saber si está logueado
+  const [authChecked, setAuthChecked] = useState(false)
+
+  // 🔐 Chequear login
   useEffect(() => {
+    const isAuth =
+      typeof window !== "undefined" ? localStorage.getItem("isAuthenticated") : null
+
+    if (isAuth !== "true") {
+      router.push("/login")
+    } else {
+      setAuthChecked(true)
+    }
+  }, [router])
+
+  // cargar stats solo si está autenticado
+  useEffect(() => {
+    if (!authChecked) return
+
     const loadStats = async () => {
       try {
         const response = await fetch("/api/dashboard/stats")
@@ -29,9 +50,10 @@ export default function Dashboard() {
     }
 
     loadStats()
-  }, [])
+  }, [authChecked])
 
-  if (loading) {
+  // mientras revisa auth o carga stats, mostramos loader centrado
+  if (!authChecked || loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -48,9 +70,8 @@ export default function Dashboard() {
   }
 
   const uniqueRegions = new Set(
-    (stats.voluntariosPorRegion ?? []).map(r => r.key)
+    (stats.voluntariosPorRegion ?? []).map((r) => r.region ?? "Desconocida")
   ).size
-
 
   return (
     <div className="min-h-screen bg-background">
@@ -101,20 +122,26 @@ export default function Dashboard() {
           <div className="grid gap-6 lg:grid-cols-2">
             <VolunteerTypeChart data={stats.voluntariosPorTipo} />
             <div className="rounded-lg border border-border bg-card p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">Base de Datos</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-4">
+                Base de Datos
+              </h3>
               <div className="space-y-3 text-sm">
                 <div className="flex items-start gap-3">
                   <div className="mt-1 h-2 w-2 rounded-full bg-green-500" />
                   <div>
                     <p className="font-medium text-foreground">Conexión activa</p>
-                    <p className="text-muted-foreground">Configurada en DATABASE_URL</p>
+                    <p className="text-muted-foreground">
+                      Configurada en DATABASE_URL
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="mt-1 h-2 w-2 rounded-full bg-blue-500" />
                   <div>
                     <p className="font-medium text-foreground">Endpoints API</p>
-                    <p className="text-muted-foreground">5 puntos de integración activos</p>
+                    <p className="text-muted-foreground">
+                      5 puntos de integración activos
+                    </p>
                   </div>
                 </div>
               </div>
