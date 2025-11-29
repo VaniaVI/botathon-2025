@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
         rut AS Rut,
         tipo_voluntariado AS TipoVoluntariado,
         campana AS Campana,
+        habilidad AS Habilidad,
         created_at,
         updated_at
       FROM volunteer
@@ -29,31 +30,37 @@ export async function POST(request: NextRequest) {
 
     const params: any[] = [];
 
-    if (filters.region && filters.region !== "Todas") {
-      sql += " AND RegionPostulante = ?";
+    // Filtro: Región
+    if (filters.region) {
+      sql += " AND regionpostulante = ?";
       params.push(filters.region);
     }
 
-    if (filters.estadoVoluntario && filters.estadoVoluntario !== "Todos") {
-      sql += " AND Estado = ?";
+    // Filtro: Estado (1=Activo, 2=Inactivo, 3=Pendiente)
+    if (filters.estadoVoluntario) {
+      sql += " AND estado = ?";
       params.push(filters.estadoVoluntario);
     }
 
-    if (filters.tipoVoluntariado && filters.tipoVoluntariado !== "Todos") {
-      sql += " AND Tipo_voluntariado = ?";
+    // Filtro: Tipo de voluntariado
+    if (filters.tipoVoluntariado) {
+      sql += " AND tipo_voluntariado = ?";
       params.push(filters.tipoVoluntariado);
     }
 
-    if (filters.habilidad && filters.habilidad !== "Todas") {
-      sql += " AND Habilidad = ?";
+    // Filtro: Habilidad
+    if (filters.habilidad) {
+      sql += " AND habilidad = ?";
       params.push(filters.habilidad);
     }
 
-    if (filters.campana && filters.campana !== "Todas") {
-      sql += " AND Campana = ?";
+    // Filtro: Campaña
+    if (filters.campana) {
+      sql += " AND campana = ?";
       params.push(filters.campana);
     }
 
+    // Filtro: Búsqueda por nombre, email o RUT
     if (filters.searchTerm && filters.searchTerm.trim() !== "") {
       sql += " AND (nombres LIKE ? OR apellidop LIKE ? OR apellidom LIKE ? OR email LIKE ? OR rut LIKE ?)";
       const term = `%${filters.searchTerm.trim()}%`;
@@ -69,6 +76,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("[DATABASE ERROR]", error);
-    return NextResponse.json({ success: false, error: "Error searching volunteers" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Error searching volunteers" },
+      { status: 500 }
+    );
   }
 }

@@ -78,29 +78,27 @@ export function SearchFilters({
           </div>
 
           {/* Estado */}
-          <div className="space-y-2">
-            <Label className="text-foreground">Estado</Label>
-            <Select
-              value={filters.estadoVoluntario?.toString() || "Todos"}
-              onValueChange={(value) =>
-                onFilterChange({
-                  ...filters,
-                  estadoVoluntario: value === "Todos" ? undefined : Number(value),
-                })
-              }
-            >
-              <SelectTrigger className="border-border bg-background text-foreground">
-                <SelectValue placeholder="Todos los estados" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Todos">Todos</SelectItem>
-                <SelectItem value="1">Activo</SelectItem>
-                <SelectItem value="2">Inactivo</SelectItem>
-                <SelectItem value="3">Pendiente</SelectItem>
-              </SelectContent>
-            </Select>
+<Select
+  value={filters.estadoVoluntario?.toString() || "Todos"} // para mostrar placeholder
+  onValueChange={(value) =>
+    onFilterChange({
+      ...filters,
+      estadoVoluntario: value === "Todos" ? undefined : Number(value) as 1 | 2 | 3,
+    })
+  }
+>
+  <SelectTrigger>
+    <SelectValue placeholder="Todos los estados" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="Todos">Todos</SelectItem> {/* solo UI */}
+    <SelectItem value="1">Activo</SelectItem>
+    <SelectItem value="2">Inactivo</SelectItem>
+    <SelectItem value="3">Pendiente</SelectItem>
+  </SelectContent>
+</Select>
 
-          </div>
+
 
           {/* Tipo de Voluntariado */}
           <div className="space-y-2">

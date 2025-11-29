@@ -78,7 +78,7 @@ export interface DashboardStats {
 
 export interface FilterOptions {
   region?: string;
-  estadoVoluntario?: "activo" | "inactivo" | "pendiente";
+  estadoVoluntario?:  1 | 2 | 3;
   tipoVoluntariado?: string;
   campana?: string;
   habilidad?: string;
