@@ -1,5 +1,5 @@
 "use client"
-
+import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { SearchFilters } from "@/components/search/search-filters"
 import { VolunteersTable } from "@/components/search/volunteers-table"
@@ -31,6 +31,7 @@ function validarRut(rut: string) {
 }
 
 export default function SearchPage() {
+  const router = useRouter()
   const [filters, setFilters] = useState<FilterOptions>({})
   const [volunteers, setVolunteers] = useState<Volunteer[]>([])
   const [totalCount, setTotalCount] = useState(0)
@@ -44,6 +45,18 @@ export default function SearchPage() {
 
   const [errorNombre, setErrorNombre] = useState("")
   const [errorRut, setErrorRut] = useState("")
+  const [authChecked, setAuthChecked] = useState(false)
+
+  useEffect(() => {
+    const isAuth =
+      typeof window !== "undefined" ? localStorage.getItem("isAuthenticated") : null
+
+    if (isAuth !== "true") {
+      router.push("/login")
+    } else {
+      setAuthChecked(true)
+    }
+  }, [router])
 
   // 🔹 Traer filtros iniciales + voluntarios iniciales
   useEffect(() => {
