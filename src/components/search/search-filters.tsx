@@ -62,27 +62,6 @@ export function SearchFilters({ filters, onFilterChange, onSearch, onClear, load
               </SelectContent>
             </Select>
           </div>
-
-          <div className="space-y-2">
-            <Label className="text-foreground">Instituto</Label>
-            <Select
-              value={filters.instituto || "Todos"}
-              onValueChange={(value) => onFilterChange({ ...filters, instituto: value })}
-            >
-              <SelectTrigger className="border-border bg-background text-foreground">
-                <SelectValue placeholder="Todos los institutos" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Todos">Todos</SelectItem>
-                {INSTITUTOS_DUOC.map((instituto) => (
-                  <SelectItem key={instituto} value={instituto}>
-                    {instituto}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="space-y-2">
             <Label className="text-foreground">Estado</Label>
             <Select
