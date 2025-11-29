@@ -1,83 +1,74 @@
-// 🔵 BLUE PRISM INTEGRATION POINT #4: Smart Search
-// Motor de búsqueda inteligente - Blue Prism procesa las búsquedas complejas
-
-import { type NextRequest, NextResponse } from "next/server"
-import { getMockVolunteers } from "@/lib/mock-data"
-import type { FilterOptions } from "@/types/volunteer"
+import { type NextRequest, NextResponse } from "next/server";
+import { query } from "@/lib/api-integration";
+import type { Volunteer, FilterOptions } from "@/types/volunteer";
 
 export async function POST(request: NextRequest) {
-  const startTime = Date.now()
-
   try {
-    const filters: FilterOptions = await request.json()
+    const filters = (await request.json()) as FilterOptions;
 
-    console.log("[BLUE PRISM SEARCH] Filters:", filters)
+    let sql = `
+      SELECT 
+        nombres AS Nombres,
+        apellidop AS ApellidoP,
+        apellidom AS ApellidoM,
+        fechanacimiento AS FechaNacimiento,
+        sexo AS Sexo,
+        regionpostulante AS RegionPostulante,
+        comunapostulante AS ComunaPostulante,
+        estado AS Estado,
+        email AS Email,
+        telefono AS Telefono,
+        rut AS Rut,
+        tipo_voluntariado AS TipoVoluntariado,
+        campana AS Campana,
+        created_at,
+        updated_at
+      FROM volunteer
+      WHERE 1=1
+    `;
 
-    // 🔵 REEMPLAZAR: Blue Prism debe ejecutar búsqueda optimizada en BD
-    // Debe completar en menos de 10 segundos (requisito RNF-08)
+    const params: any[] = [];
 
-    let volunteers = getMockVolunteers()
-
-    // Aplicar filtros
-    if (filters.region) {
-      volunteers = volunteers.filter((v) => v.region === filters.region)
+    if (filters.region && filters.region !== "Todas") {
+      sql += " AND RegionPostulante = ?";
+      params.push(filters.region);
     }
 
-    if (filters.instituto) {
-      volunteers = volunteers.filter((v) => v.instituto === filters.instituto)
+    if (filters.estadoVoluntario && filters.estadoVoluntario !== "Todos") {
+      sql += " AND Estado = ?";
+      params.push(filters.estadoVoluntario);
     }
 
-    if (filters.estadoVoluntario) {
-      volunteers = volunteers.filter((v) => v.estadoVoluntario === filters.estadoVoluntario)
+    if (filters.tipoVoluntariado && filters.tipoVoluntariado !== "Todos") {
+      sql += " AND Tipo_voluntariado = ?";
+      params.push(filters.tipoVoluntariado);
     }
 
-if (filters.tipoVoluntariado) {
-  const tiposVoluntariado = Array.isArray(filters.tipoVoluntariado)
-    ? filters.tipoVoluntariado
-    : [filters.tipoVoluntariado];
-
-  volunteers = volunteers.filter((v) =>
-    tiposVoluntariado.every((t) => v.tipoVoluntariado.includes(t))
-  );
-}
-
-    if (filters.campana) {
-      const campanasParticipadas = Array.isArray(filters.campana) ? filters.campana : [filters.campana]
-      volunteers = volunteers.filter((v) => 
-        campanasParticipadas.every((h) => v.campanasParticipadas.includes(h))
-    );
+    if (filters.habilidad && filters.habilidad !== "Todas") {
+      sql += " AND Habilidad = ?";
+      params.push(filters.habilidad);
     }
 
-    if (filters.habilidad) {
-    const habilidades = Array.isArray(filters.habilidad) ? filters.habilidad : [filters.habilidad];
-    volunteers = volunteers.filter((v) =>
-      habilidades.every((h) => v.habilidades.includes(h))
-    );
-}
-    if (filters.searchTerm) {
-      const term = filters.searchTerm.toLowerCase()
-      volunteers = volunteers.filter(
-        (v) =>
-          v.nombres.toLowerCase().includes(term) ||
-          v.primerApellido.toLowerCase().includes(term) ||
-          v.email.toLowerCase().includes(term) ||
-          v.numeroDocumento.includes(term),
-      )
+    if (filters.campana && filters.campana !== "Todas") {
+      sql += " AND Campana = ?";
+      params.push(filters.campana);
     }
 
-    const duration = Date.now() - startTime
+    if (filters.searchTerm && filters.searchTerm.trim() !== "") {
+      sql += " AND (nombres LIKE ? OR apellidop LIKE ? OR apellidom LIKE ? OR email LIKE ? OR rut LIKE ?)";
+      const term = `%${filters.searchTerm.trim()}%`;
+      params.push(term, term, term, term, term);
+    }
+
+    const volunteers: Volunteer[] = await query<Volunteer>(sql, params);
 
     return NextResponse.json({
       success: true,
       count: volunteers.length,
       data: volunteers,
-      filters,
-      duration: `${duration}ms`,
-      timestamp: new Date().toISOString(),
-    })
+    });
   } catch (error) {
-    console.error("[API ERROR]", error)
-    return NextResponse.json({ success: false, error: "Error in search" }, { status: 500 })
+    console.error("[DATABASE ERROR]", error);
+    return NextResponse.json({ success: false, error: "Error searching volunteers" }, { status: 500 });
   }
 }
-

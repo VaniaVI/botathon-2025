@@ -1,46 +1,109 @@
-// 🔵 BLUE PRISM INTEGRATION POINT #2: Volunteers API
-// Este endpoint será llamado por Blue Prism para insertar/consultar voluntarios
-
-import { type NextRequest, NextResponse } from "next/server"
-import { getMockVolunteers } from "@/lib/mock-data"
+import { type NextRequest, NextResponse } from "next/server";
+import { query } from "@/lib/api-integration";
+import type { Volunteer } from "@/types/volunteer";
 
 export async function GET(request: NextRequest) {
   try {
-    // 🔵 REEMPLAZAR: Aquí Blue Prism debe consultar la base de datos real
-    // Ejemplo: const volunteers = await db.query('SELECT * FROM volunteers')
+    const sql = `
+      SELECT 
+        nombres AS Nombres,
+        apellidop AS ApellidoP,
+        apellidom AS ApellidoM,
+        fechanacimiento AS FechaNacimiento,
+        sexo AS Sexo,
+        regionpostulante AS RegionPostulante,
+        comunapostulante AS ComunaPostulante,
+        estado AS Estado,
+        email AS Email,
+        telefono AS Telefono,
+        rut AS Rut,
+        campana AS Campana,
+        tipovoluntariado AS TipoVoluntariado,
+        habilidad AS Habilidad,
+        created_at,
+        updated_at
+      FROM volunteer;
+    `;
 
-    const volunteers = getMockVolunteers()
+    const volunteers: Volunteer[] = await query<Volunteer>(sql);
 
     return NextResponse.json({
       success: true,
       count: volunteers.length,
       data: volunteers,
-    })
+    });
   } catch (error) {
-    console.error("[API ERROR]", error)
-    return NextResponse.json({ success: false, error: "Error fetching volunteers" }, { status: 500 })
+    console.error("[API ERROR]", error);
+    return NextResponse.json({ success: false, error: "Error fetching volunteers" }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = (await request.json()) as Partial<Volunteer>;
 
-    // 🔵 BLUE PRISM: Aquí se reciben datos desde el RPA
-    // Blue Prism debe enviar datos normalizados en este formato
+    if (!body.Nombres || !body.ApellidoP || !body.ApellidoM) {
+      return NextResponse.json(
+        { success: false, error: "Missing volunteer identifiers" },
+        { status: 400 }
+      );
+    }
 
-    console.log("[BLUE PRISM DATA RECEIVED]", body)
+    // MySQL UPDATE con ? y sin RETURNING
+    const updateSql = `
+      UPDATE volunteer
+      SET email = ?, telefono = ?, rut = ?
+      WHERE nombres = ? AND apellidop = ? AND apellidom = ?
+    `;
 
-    // 🔵 REEMPLAZAR: Insertar en base de datos real
-    // Ejemplo: await db.query('INSERT INTO volunteers VALUES (...)', body)
+    const params = [
+      body.Email || null,
+      body.Telefono || null,
+      body.Rut || null,
+      body.Nombres,
+      body.ApellidoP,
+      body.ApellidoM,
+    ];
+
+    await query(updateSql, params);
+
+    // Traer el registro actualizado
+    const selectSql = `
+      SELECT 
+        nombres AS Nombres,
+        apellidop AS ApellidoP,
+        apellidom AS ApellidoM,
+        fechanacimiento AS FechaNacimiento,
+        sexo AS Sexo,
+        regionpostulante AS RegionPostulante,
+        comunapostulante AS ComunaPostulante,
+        estado AS Estado,
+        email AS Email,
+        telefono AS Telefono,
+        rut AS Rut,
+        created_at,
+        updated_at
+      FROM volunteer
+      WHERE nombres = ? AND apellidop = ? AND apellidom = ?
+      LIMIT 1
+    `;
+
+    const updatedVolunteers = await query<Volunteer>(selectSql, [
+      body.Nombres,
+      body.ApellidoP,
+      body.ApellidoM,
+    ]);
 
     return NextResponse.json({
       success: true,
-      message: "Volunteer created successfully",
-      id: `VOL-${Date.now()}`,
-    })
+      message: "Volunteer updated successfully",
+      data: updatedVolunteers[0] || null,
+    });
   } catch (error) {
-    console.error("[API ERROR]", error)
-    return NextResponse.json({ success: false, error: "Error creating volunteer" }, { status: 500 })
+    console.error("[API ERROR]", error);
+    return NextResponse.json(
+      { success: false, error: "Error updating volunteer" },
+      { status: 500 }
+    );
   }
 }

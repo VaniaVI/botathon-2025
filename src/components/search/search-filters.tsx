@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, X } from "lucide-react"
-import { REGIONES_CHILE, INSTITUTOS_DUOC, TIPOS_VOLUNTARIADO, HABILIDADES, CAMPANAS } from "@/lib/mock-data"
 import type { FilterOptions } from "@/types/volunteer"
 
 interface SearchFiltersProps {
@@ -15,9 +14,25 @@ interface SearchFiltersProps {
   onSearch: () => void
   onClear: () => void
   loading?: boolean
+
+  // Nuevos props que reemplazan mock-data
+  regiones?: string[]
+  tiposVoluntariado?: string[]
+  habilidades?: string[]
+  campanas?: string[]
 }
 
-export function SearchFilters({ filters, onFilterChange, onSearch, onClear, loading }: SearchFiltersProps) {
+export function SearchFilters({
+  filters,
+  onFilterChange,
+  onSearch,
+  onClear,  
+  loading,
+  regiones = [],
+  tiposVoluntariado = [],
+  habilidades = [],
+  campanas = []
+}: SearchFiltersProps) {
   return (
     <Card className="border-border">
       <CardHeader>
@@ -26,12 +41,11 @@ export function SearchFilters({ filters, onFilterChange, onSearch, onClear, load
           Utiliza filtros avanzados para encontrar voluntarios específicos
         </CardDescription>
       </CardHeader>
+
       <CardContent className="space-y-4">
-        {/* Búsqueda por texto */}
+        {/* Búsqueda general */}
         <div className="space-y-2">
-          <Label htmlFor="search" className="text-foreground">
-            Búsqueda General
-          </Label>
+          <Label htmlFor="search" className="text-foreground">Búsqueda General</Label>
           <Input
             id="search"
             placeholder="Nombre, email, RUT..."
@@ -41,8 +55,10 @@ export function SearchFilters({ filters, onFilterChange, onSearch, onClear, load
           />
         </div>
 
-        {/* Filtros por selección */}
+        {/* Filtros principales */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+
+          {/* Región */}
           <div className="space-y-2">
             <Label className="text-foreground">Región</Label>
             <Select
@@ -54,14 +70,14 @@ export function SearchFilters({ filters, onFilterChange, onSearch, onClear, load
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Todas">Todas</SelectItem>
-                {REGIONES_CHILE.map((region) => (
-                  <SelectItem key={region} value={region}>
-                    {region}
-                  </SelectItem>
+                {(regiones || []).map((region) => (
+                  <SelectItem key={region} value={region}>{region}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
+
+          {/* Estado */}
           <div className="space-y-2">
             <Label className="text-foreground">Estado</Label>
             <Select
@@ -70,9 +86,7 @@ export function SearchFilters({ filters, onFilterChange, onSearch, onClear, load
                 onFilterChange({
                   ...filters,
                   estadoVoluntario:
-                    value === "Todos"
-                      ? undefined
-                      : (value as "activo" | "inactivo" | "pendiente"),
+                    value === "Todos" ? undefined : (value as "activo" | "inactivo" | "pendiente"),
                 })
               }
             >
@@ -88,7 +102,7 @@ export function SearchFilters({ filters, onFilterChange, onSearch, onClear, load
             </Select>
           </div>
 
-
+          {/* Tipo de Voluntariado */}
           <div className="space-y-2">
             <Label className="text-foreground">Tipo de Voluntariado</Label>
             <Select
@@ -100,15 +114,14 @@ export function SearchFilters({ filters, onFilterChange, onSearch, onClear, load
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Todos">Todos</SelectItem>
-                {TIPOS_VOLUNTARIADO.map((tipo) => (
-                  <SelectItem key={tipo} value={tipo}>
-                    {tipo}
-                  </SelectItem>
+                {(tiposVoluntariado || []).map((tipo) => (
+                  <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
+          {/* Habilidades */}
           <div className="space-y-2">
             <Label className="text-foreground">Habilidad</Label>
             <Select
@@ -120,15 +133,14 @@ export function SearchFilters({ filters, onFilterChange, onSearch, onClear, load
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Todas">Todas</SelectItem>
-                {HABILIDADES.map((habilidad) => (
-                  <SelectItem key={habilidad} value={habilidad}>
-                    {habilidad}
-                  </SelectItem>
+                {(habilidades || []).map((habilidad) => (
+                  <SelectItem key={habilidad} value={habilidad}>{habilidad}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
+          {/* Campañas */}
           <div className="space-y-2">
             <Label className="text-foreground">Campaña</Label>
             <Select
@@ -140,17 +152,16 @@ export function SearchFilters({ filters, onFilterChange, onSearch, onClear, load
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Todas">Todas</SelectItem>
-                {CAMPANAS.map((campana) => (
-                  <SelectItem key={campana} value={campana}>
-                    {campana}
-                  </SelectItem>
+                {(campanas || []).map((campana) => (
+                  <SelectItem key={campana} value={campana}>{campana}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
+
         </div>
 
-        {/* Botones de acción */}
+        {/* Botones */}
         <div className="flex gap-2 pt-2">
           <Button
             onClick={onSearch}
@@ -160,6 +171,7 @@ export function SearchFilters({ filters, onFilterChange, onSearch, onClear, load
             <Search className="mr-2 h-4 w-4" />
             {loading ? "Buscando..." : "Buscar Voluntarios"}
           </Button>
+
           <Button
             onClick={onClear}
             variant="outline"

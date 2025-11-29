@@ -1,20 +1,34 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from "recharts"
 
-interface RegionDistributionProps {
-  data: { region: string; count: number }[]
-}
+export function RegionDistribution() {
+  const [data, setData] = useState<{ region: string; count: number }[]>([])
 
-export function RegionDistribution({ data }: RegionDistributionProps) {
-  const topRegions = data
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 10)
-    .map((item) => ({
-      ...item,
-      region: item.region.replace("Región de ", "").replace("Región del ", "").replace("Región ", ""),
-    }))
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await fetch("/api/regions")
+        const json = await res.json()
+        setData(json)
+      } catch (error) {
+        console.error("Error fetching regions:", error)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+const topRegions = data
+  .filter(item => item.region)
+  .sort((a, b) => b.count - a.count)
+  .slice(0, 10)
+  .map(item => ({
+    ...item,
+    region: String(item.region).replace("Región de ", "").replace("Región del ", "").replace("Región ", ""),
+  }));
 
   return (
     <Card className="border-border">
