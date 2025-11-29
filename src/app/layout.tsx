@@ -5,7 +5,7 @@ import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import { Toaster } from "sonner"
 import Link from "next/link"
-import { LayoutDashboard, Search, Send } from "lucide-react"
+import { LayoutDashboard, Search, Send , Upload } from "lucide-react"
 import { Suspense } from "react"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -63,6 +63,13 @@ export default function RootLayout({
               title="Comunicaciones"
             >
               <Send className="h-5 w-5" />
+            </Link>
+            <Link
+              href="/uploadVolunteerFile"
+              className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+              title="Subir archivo"
+            >
+              <Upload className="h-5 w-5" />
             </Link>
           </div>
 

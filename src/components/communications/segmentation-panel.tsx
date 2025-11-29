@@ -123,11 +123,6 @@ export function SegmentationPanel({ filters, selectedCount }: SegmentationPanelP
             envío masivo.
           </div>
         )}
-
-        <div className="rounded-lg bg-blue-50 border border-blue-200 p-3 text-xs text-blue-800">
-          <strong>🔵 Integración Blue Prism:</strong> Este módulo simula la preparación de comunicaciones masivas. Blue
-          Prism se encargará del envío real mediante RPA.
-        </div>
       </CardContent>
     </Card>
   )

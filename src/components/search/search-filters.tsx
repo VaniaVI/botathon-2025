@@ -15,11 +15,14 @@ interface SearchFiltersProps {
   onClear: () => void
   loading?: boolean
 
-  // Nuevos props que reemplazan mock-data
   regiones?: string[]
   tiposVoluntariado?: string[]
   habilidades?: string[]
   campanas?: string[]
+
+  // 🔥 Nuevos props para mostrar errores
+  errorNombre?: string
+  errorRut?: string
 }
 
 export function SearchFilters({
@@ -31,8 +34,11 @@ export function SearchFilters({
   regiones = [],
   tiposVoluntariado = [],
   habilidades = [],
-  campanas = []
+  campanas = [],
+  errorNombre = "",
+  errorRut = ""
 }: SearchFiltersProps) {
+
   return (
     <Card className="border-border">
       <CardHeader>
@@ -43,9 +49,13 @@ export function SearchFilters({
       </CardHeader>
 
       <CardContent className="space-y-4">
+
         {/* Búsqueda general */}
         <div className="space-y-2">
-          <Label htmlFor="search" className="text-foreground">Búsqueda General</Label>
+          <Label htmlFor="search" className="text-foreground">
+            Búsqueda General
+          </Label>
+
           <Input
             id="search"
             placeholder="Nombre, email, RUT..."
@@ -53,6 +63,14 @@ export function SearchFilters({
             onChange={(e) => onFilterChange({ ...filters, searchTerm: e.target.value })}
             className="border-border bg-background text-foreground"
           />
+
+          {/* 🔥 MENSAJES DE ERROR */}
+          {errorNombre && (
+            <p className="text-red-500 text-xs mt-1">{errorNombre}</p>
+          )}
+          {errorRut && (
+            <p className="text-red-500 text-xs mt-1">{errorRut}</p>
+          )}
         </div>
 
         {/* Filtros principales */}
@@ -68,6 +86,7 @@ export function SearchFilters({
               <SelectTrigger className="border-border bg-background text-foreground">
                 <SelectValue placeholder="Todas las regiones" />
               </SelectTrigger>
+
               <SelectContent>
                 <SelectItem value="Todas">Todas</SelectItem>
                 {(regiones || []).map((region) => (
@@ -105,6 +124,7 @@ export function SearchFilters({
               <SelectTrigger className="border-border bg-background text-foreground">
                 <SelectValue placeholder="Todos los tipos" />
               </SelectTrigger>
+
               <SelectContent>
                 <SelectItem value="Todos">Todos</SelectItem>
                 {(tiposVoluntariado || []).map((tipo) => (
@@ -124,6 +144,7 @@ export function SearchFilters({
               <SelectTrigger className="border-border bg-background text-foreground">
                 <SelectValue placeholder="Todas las habilidades" />
               </SelectTrigger>
+
               <SelectContent>
                 <SelectItem value="Todas">Todas</SelectItem>
                 {(habilidades || []).map((habilidad) => (
@@ -143,6 +164,7 @@ export function SearchFilters({
               <SelectTrigger className="border-border bg-background text-foreground">
                 <SelectValue placeholder="Todas las campañas" />
               </SelectTrigger>
+
               <SelectContent>
                 <SelectItem value="Todas">Todas</SelectItem>
                 {(campanas || []).map((campana) => (
@@ -154,7 +176,7 @@ export function SearchFilters({
 
         </div>
 
-        {/* Botones */}
+        {/* Botones de acción */}
         <div className="flex gap-2 pt-2">
           <Button
             onClick={onSearch}
@@ -174,6 +196,7 @@ export function SearchFilters({
             Limpiar
           </Button>
         </div>
+
       </CardContent>
     </Card>
   )

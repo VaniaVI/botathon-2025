@@ -8,56 +8,60 @@ interface VolunteerDBRow {
   nombres: string
   apellidop: string
   apellidom: string | null
-  estadoVoluntario: number | null
-  region: string | null
-  tipoVoluntariado: string | null
+  estado: number | null
+  regionpostulante: string | null
+  tipo_voluntariado: string | null
   campana: string | null
   created_at: string
 }
 
-
 export async function GET(request: NextRequest) {
   try {
     const volunteers = await query<VolunteerDBRow>(`
-      SELECT v.id, v.nombres, v.apellidop, v.apellidom, v.estado AS estadoVoluntario,
-             r.nombre AS region,
-             t.tipo AS tipoVoluntariado,
-             c.campana AS campana,
-             v.created_at
+      SELECT 
+        v.id, 
+        v.nombres, 
+        v.apellidop, 
+        v.apellidom, 
+        v.estado,
+        r.nombre AS regionpostulante,
+        t.tipo AS tipo_voluntariado,
+        c.campana AS campana,
+        v.created_at
       FROM volunteer v
       LEFT JOIN region r ON v.regionpostulante = r.id
       LEFT JOIN tipo_voluntariado t ON v.tipo_voluntariado = t.id
       LEFT JOIN programa_campana c ON v.campana = c.id
     `)
-    console.log("Voluntarios obtenidos de la BD:", volunteers);
+
+    console.log("Voluntarios obtenidos de la BD:", volunteers)
 
     const totalVoluntarios = volunteers.length
-    const voluntariosActivos = volunteers.filter(v => v.estadoVoluntario === 1).length
+    const voluntariosActivos = volunteers.filter(v => v.estado === 1).length
 
     const voluntariosPorRegion: CountByKey[] = Object.entries(
-  volunteers.reduce((acc, v) => {
-    const key = v.region || "Sin región"
-    acc[key] = (acc[key] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
-).map(([key, count]) => ({ key, count: count as number }))
+      volunteers.reduce((acc, v) => {
+        const key = v.regionpostulante || "Sin región"
+        acc[key] = (acc[key] || 0) + 1
+        return acc
+      }, {} as Record<string, number>)
+    ).map(([key, count]) => ({ key, count: count as number }))
 
-const voluntariosPorCampana: CountByKey[] = Object.entries(
-  volunteers.reduce((acc, v) => {
-    const key = v.campana || "Sin campaña"
-    acc[key] = (acc[key] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
-).map(([key, count]) => ({ key, count: count as number }))
+    const voluntariosPorCampana: CountByKey[] = Object.entries(
+      volunteers.reduce((acc, v) => {
+        const key = v.campana || "Sin campaña"
+        acc[key] = (acc[key] || 0) + 1
+        return acc
+      }, {} as Record<string, number>)
+    ).map(([key, count]) => ({ key, count: count as number }))
 
-const voluntariosPorTipo: CountByKey[] = Object.entries(
-  volunteers.reduce((acc, v) => {
-    const key = v.tipoVoluntariado || "Sin tipo"
-    acc[key] = (acc[key] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
-).map(([key, count]) => ({ key, count: count as number }))
-
+    const voluntariosPorTipo: CountByKey[] = Object.entries(
+      volunteers.reduce((acc, v) => {
+        const key = v.tipo_voluntariado || "Sin tipo"
+        acc[key] = (acc[key] || 0) + 1
+        return acc
+      }, {} as Record<string, number>)
+    ).map(([key, count]) => ({ key, count: count as number }))
 
     const participacionMensual: MonthlyParticipation[] = Array.from({ length: 12 }, (_, i) => {
       const mes = new Date(0, i).toLocaleString("es-CL", { month: "short" })
