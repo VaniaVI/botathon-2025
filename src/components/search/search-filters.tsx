@@ -87,7 +87,15 @@ export function SearchFilters({ filters, onFilterChange, onSearch, onClear, load
             <Label className="text-foreground">Estado</Label>
             <Select
               value={filters.estadoVoluntario || "Todos"}
-              onValueChange={(value) => onFilterChange({ ...filters, estadoVoluntario: value })}
+              onValueChange={(value) =>
+                onFilterChange({
+                  ...filters,
+                  estadoVoluntario:
+                    value === "Todos"
+                      ? undefined
+                      : (value as "activo" | "inactivo" | "pendiente"),
+                })
+              }
             >
               <SelectTrigger className="border-border bg-background text-foreground">
                 <SelectValue placeholder="Todos los estados" />
@@ -100,6 +108,7 @@ export function SearchFilters({ filters, onFilterChange, onSearch, onClear, load
               </SelectContent>
             </Select>
           </div>
+
 
           <div className="space-y-2">
             <Label className="text-foreground">Tipo de Voluntariado</Label>

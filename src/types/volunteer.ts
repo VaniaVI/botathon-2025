@@ -36,9 +36,9 @@ export interface FilterOptions {
   region?: string;
   instituto?: string;
   estadoVoluntario?: "activo" | "inactivo" | "pendiente";
-  tipoVoluntariado?: string | string[];
-  campana?: string | string[];
-  habilidad?: string | string[];
+  tipoVoluntariado?: string;  
+  campana?: string;           
+  habilidad?: string;         
   searchTerm?: string;
 }
 
