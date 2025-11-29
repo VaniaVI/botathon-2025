@@ -81,12 +81,11 @@ export function SearchFilters({
           <div className="space-y-2">
             <Label className="text-foreground">Estado</Label>
             <Select
-              value={filters.estadoVoluntario || "Todos"}
+              value={filters.estadoVoluntario?.toString() || "Todos"}
               onValueChange={(value) =>
                 onFilterChange({
                   ...filters,
-                  estadoVoluntario:
-                    value === "Todos" ? undefined : (value as "activo" | "inactivo" | "pendiente"),
+                  estadoVoluntario: value === "Todos" ? undefined : Number(value),
                 })
               }
             >
@@ -95,11 +94,12 @@ export function SearchFilters({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Todos">Todos</SelectItem>
-                <SelectItem value="activo">Activo</SelectItem>
-                <SelectItem value="inactivo">Inactivo</SelectItem>
-                <SelectItem value="pendiente">Pendiente</SelectItem>
+                <SelectItem value="1">Activo</SelectItem>
+                <SelectItem value="2">Inactivo</SelectItem>
+                <SelectItem value="3">Pendiente</SelectItem>
               </SelectContent>
             </Select>
+
           </div>
 
           {/* Tipo de Voluntariado */}
