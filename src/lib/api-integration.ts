@@ -32,6 +32,7 @@
  */
 
 import type { Volunteer } from "@/types/volunteer"
+import { Pool } from "pg"
 
 // 🔵 BLUE PRISM CONFIG
 export const BLUEPRISM_CONFIG = {
@@ -62,6 +63,11 @@ export const DATABASE_CONFIG = {
     COMMUNICATIONS: "communications",
   },
 }
+
+// 🔵 POOL DE CONEXIÓN A POSTGRES (NEON)
+const dbPool = new Pool({
+  connectionString: DATABASE_CONFIG.CONNECTION_STRING,
+});
 
 // 🔵 BLUE PRISM INTEGRATION FUNCTIONS
 export async function triggerBluePrismProcess(processName: string, parameters: Record<string, unknown>) {
@@ -109,22 +115,21 @@ export async function getBluePrismProcessStatus(processId: string) {
 }
 
 // 🔵 DATABASE INTEGRATION FUNCTIONS
+// Con esto, cualquier parte del codigo que llame a la base de datos, estara hablando directamente con
 export async function executeDatabaseQuery(query: string, params: unknown[] = []) {
   /**
-   * CONECTAR AQUÍ CON TU BASE DE DATOS
-   * Ejemplo con PostgreSQL, MySQL, etc.
-   *
-   * Para conectar con la BD:
-   * 1. Instalar el driver apropiado (pg, mysql2, etc.)
-   * 2. Configurar DATABASE_URL en variables de entorno
-   * 3. Implementar la lógica de conexión aquí
+   * Implementación REAL de la conexión a PostgreSQL (Neon)
    */
+  try {
+    // Opcional: log para debug
+    // console.log("[DATABASE] Query:", query, "Params:", params)
 
-  // TODO: Implementar conexión real a base de datos
-  console.log("[DATABASE] Query:", query, "Params:", params)
-
-  // Simulación - REEMPLAZAR con query real
-  return []
+    const result = await dbPool.query(query, params);
+    return result.rows; // devolvemos solo las filas
+  } catch (error) {
+    console.error("[DATABASE ERROR]", error);
+    throw error;
+  }
 }
 
 // Funciones auxiliares para RPA
