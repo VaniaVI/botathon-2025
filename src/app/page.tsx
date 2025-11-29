@@ -48,8 +48,8 @@ export default function Dashboard() {
   }
 
   const uniqueRegions = new Set(
-  (stats.voluntariosPorRegion ?? []).map((r) => r.region ?? "Desconocida")
-).size
+    (stats.voluntariosPorRegion ?? []).map(r => r.key)
+  ).size
 
 
   return (
