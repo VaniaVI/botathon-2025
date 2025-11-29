@@ -6,19 +6,14 @@ import { ParticipationChart } from "@/components/dashboard/participation-chart"
 import { RegionDistribution } from "@/components/dashboard/region-distribution"
 import { VolunteerTypeChart } from "@/components/dashboard/volunteer-type-chart"
 import type { DashboardStats } from "@/types/volunteer"
-import { initializeMockData } from "@/lib/mock-data"
 import { Loader2 } from "lucide-react"
-import Image from "next/image";
+import Image from "next/image"
 
 export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Inicializa datos mock
-    initializeMockData()
-
-    // Carga estadísticas
     const loadStats = async () => {
       try {
         const response = await fetch("/api/dashboard/stats")
@@ -27,7 +22,7 @@ export default function Dashboard() {
           setStats(result.data)
         }
       } catch (error) {
-        console.error("[ERROR]", error)
+        console.error("[DASHBOARD ERROR]", error)
       } finally {
         setLoading(false)
       }
@@ -52,41 +47,38 @@ export default function Dashboard() {
     )
   }
 
-  const uniqueRegions = new Set(stats.voluntariosPorRegion.map((r) => r.region)).size
+  const uniqueRegions = new Set(
+  (stats.voluntariosPorRegion ?? []).map((r) => r.region ?? "Desconocida")
+).size
+
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-<header className="border-b border-border bg-card">
-  <div className="container mx-auto px-4 py-6">
-    
-    <div className="flex flex-wrap items-center gap-6 sm:gap-10">
+      <header className="border-b border-border bg-card">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex flex-wrap items-center gap-6 sm:gap-10">
+            {/* LOGO */}
+            <Image
+              src="/logo_teleton.png"
+              alt="Logo Teleton"
+              width={200}
+              height={100}
+              className="w-32 sm:w-48 h-auto"
+            />
 
-      {/* LOGO */}
-      <Image
-        src="/logo_teleton.png"
-        alt="Logo Teleton"
-        width={200}
-        height={100}
-        className="w-32 sm:w-48 h-auto"
-      />
-
-      {/* TEXTO */}
-      <div className="flex flex-col">
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-          CRM Voluntarios Teletón
-        </h1>
-
-        <p className="mt-1 text-sm sm:text-base text-muted-foreground">
-          Sistema de Gestión de Voluntariado - Botathon 2025
-        </p>
-      </div>
-
-    </div>
-
-  </div>
-</header>
-
+            {/* TEXTO */}
+            <div className="flex flex-col">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                CRM Voluntarios Teletón
+              </h1>
+              <p className="mt-1 text-sm sm:text-base text-muted-foreground">
+                Sistema de Gestión de Voluntariado - Botathon 2025
+              </p>
+            </div>
+          </div>
+        </div>
+      </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
@@ -109,24 +101,17 @@ export default function Dashboard() {
           <div className="grid gap-6 lg:grid-cols-2">
             <VolunteerTypeChart data={stats.voluntariosPorTipo} />
             <div className="rounded-lg border border-border bg-card p-6">
-              <h3 className="text-lg font-semibold text-foreground mb-4">Integración Blue Prism</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-4">Base de Datos</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex items-start gap-3">
                   <div className="mt-1 h-2 w-2 rounded-full bg-green-500" />
                   <div>
-                    <p className="font-medium text-foreground">Base de Datos</p>
-                    <p className="text-muted-foreground">Configurar en DATABASE_URL</p>
+                    <p className="font-medium text-foreground">Conexión activa</p>
+                    <p className="text-muted-foreground">Configurada en DATABASE_URL</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="mt-1 h-2 w-2 rounded-full bg-blue-500" />
-                  <div>
-                    <p className="font-medium text-foreground">Blue Prism RPA</p>
-                    <p className="text-muted-foreground">Ver lib/api-integration.ts</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="mt-1 h-2 w-2 rounded-full bg-orange-500" />
                   <div>
                     <p className="font-medium text-foreground">Endpoints API</p>
                     <p className="text-muted-foreground">5 puntos de integración activos</p>

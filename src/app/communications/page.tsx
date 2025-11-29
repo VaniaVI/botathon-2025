@@ -5,7 +5,6 @@ import { SearchFilters } from "@/components/search/search-filters"
 import { SegmentationPanel } from "@/components/communications/segmentation-panel"
 import { VolunteersTable } from "@/components/search/volunteers-table"
 import type { FilterOptions, Volunteer } from "@/types/volunteer"
-import { initializeMockData } from "@/lib/mock-data"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
@@ -15,8 +14,29 @@ export default function CommunicationsPage() {
   const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(false)
 
+  const [regiones, setRegiones] = useState<string[]>([])
+  const [tiposVoluntariado, setTiposVoluntariado] = useState<string[]>([])
+  const [habilidades, setHabilidades] = useState<string[]>([])
+  const [campanas, setCampanas] = useState<string[]>([])
+
+  // 🔹 Traer datos iniciales de filtros desde la API
   useEffect(() => {
-    initializeMockData()
+    const fetchFilterData = async () => {
+      try {
+        const response = await fetch("/api/volunteers/filters")
+        const result = await response.json()
+        if (result.success) {
+          setRegiones(result.data.regiones || [])
+          setTiposVoluntariado(result.data.tiposVoluntariado || [])
+          setHabilidades(result.data.habilidades || [])
+          setCampanas(result.data.campanas || [])
+        }
+      } catch (error) {
+        console.error("[FILTER DATA ERROR]", error)
+      }
+    }
+
+    fetchFilterData()
   }, [])
 
   const handleSearch = async () => {
@@ -64,7 +84,7 @@ export default function CommunicationsPage() {
           </div>
           <h1 className="mt-4 text-3xl font-bold text-foreground">Comunicaciones Segmentadas</h1>
           <p className="mt-1 text-muted-foreground">
-            Segmenta voluntarios y prepara comunicaciones masivas con Blue Prism
+            Segmenta voluntarios y prepara comunicaciones masivas
           </p>
         </div>
       </header>
@@ -79,6 +99,10 @@ export default function CommunicationsPage() {
               onSearch={handleSearch}
               onClear={handleClear}
               loading={loading}
+              regiones={regiones}
+              tiposVoluntariado={tiposVoluntariado}
+              habilidades={habilidades}
+              campanas={campanas}
             />
 
             {volunteers.length > 0 && <VolunteersTable volunteers={volunteers} totalCount={totalCount} />}

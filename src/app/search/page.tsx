@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { SearchFilters } from "@/components/search/search-filters"
 import { VolunteersTable } from "@/components/search/volunteers-table"
 import type { FilterOptions, Volunteer } from "@/types/volunteer"
-import { initializeMockData } from "@/lib/mock-data"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
@@ -15,15 +14,35 @@ export default function SearchPage() {
   const [searchDuration, setSearchDuration] = useState<string>("")
   const [loading, setLoading] = useState(false)
 
+  const [regiones, setRegiones] = useState<string[]>([])
+  const [tiposVoluntariado, setTiposVoluntariado] = useState<string[]>([])
+  const [habilidades, setHabilidades] = useState<string[]>([])
+  const [campanas, setCampanas] = useState<string[]>([])
+
+  // 🔹 Traer datos iniciales de filtros desde la API
   useEffect(() => {
-    initializeMockData()
+    const fetchFilterData = async () => {
+      try {
+        const response = await fetch("/api/volunteers/filters")
+        const result = await response.json()
+        if (result.success) {
+          setRegiones(result.data.regiones || [])
+          setTiposVoluntariado(result.data.tiposVoluntariado || [])
+          setHabilidades(result.data.habilidades || [])
+          setCampanas(result.data.campanas || [])
+        }
+      } catch (error) {
+        console.error("[FILTER DATA ERROR]", error)
+      }
+    }
+
+    fetchFilterData()
   }, [])
 
   const handleSearch = async () => {
     setLoading(true)
 
     try {
-      // 🔵 BLUE PRISM: Ejecuta búsqueda inteligente
       const response = await fetch("/api/volunteers/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -66,7 +85,7 @@ export default function SearchPage() {
             </Link>
           </div>
           <h1 className="mt-4 text-3xl font-bold text-foreground">Búsqueda de Voluntarios</h1>
-          <p className="mt-1 text-muted-foreground">Motor de búsqueda inteligente con Blue Prism RPA</p>
+          <p className="mt-1 text-muted-foreground">Motor de búsqueda inteligente</p>
         </div>
       </header>
 
@@ -79,10 +98,18 @@ export default function SearchPage() {
             onSearch={handleSearch}
             onClear={handleClear}
             loading={loading}
+            regiones={regiones}
+            tiposVoluntariado={tiposVoluntariado}
+            habilidades={habilidades}
+            campanas={campanas}
           />
 
           {(volunteers.length > 0 || loading) && (
-            <VolunteersTable volunteers={volunteers} totalCount={totalCount} searchDuration={searchDuration} />
+            <VolunteersTable
+              volunteers={volunteers}
+              totalCount={totalCount}
+              searchDuration={searchDuration}
+            />
           )}
         </div>
       </main>

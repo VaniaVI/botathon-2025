@@ -1,8 +1,7 @@
-// 🔵 BLUE PRISM INTEGRATION POINT #3: Bulk Insert
-// Blue Prism usa este endpoint para inserción masiva desde CSV/Excel
-
+// 🔵 BULK INSERT: Inserción masiva de voluntarios en BD
 import { type NextRequest, NextResponse } from "next/server"
-import { RPAHelpers } from "@/lib/api-integration"
+import { query } from "@/lib/api-integration"
+import type { Volunteer } from "@/types/volunteer"
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,22 +11,60 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Invalid data format" }, { status: 400 })
     }
 
-    // 🔵 BLUE PRISM: Valida y normaliza datos
-    const validVolunteers = volunteers
-      .filter((v) => RPAHelpers.validateVolunteerData(v))
-      .map((v) => RPAHelpers.normalizeVolunteerData(v))
+    // 🔹 Filtrar y normalizar datos válidos
+    const validVolunteers: Volunteer[] = volunteers.filter(v => 
+      v.nombres && v.apellidop && v.tipo_voluntariado && v.regionpostulante
+    )
 
-    console.log(`[BLUE PRISM BULK INSERT] Processing ${validVolunteers.length} volunteers`)
+    if (validVolunteers.length === 0) {
+      return NextResponse.json({
+        success: false,
+        inserted: 0,
+        rejected: volunteers.length,
+        message: "No valid volunteers to insert"
+      })
+    }
 
-    // 🔵 REEMPLAZAR: Inserción masiva en base de datos
-    // Ejemplo: await db.bulkInsert('volunteers', validVolunteers)
+    // 🔹 Inserción masiva en la BD usando un loop
+    for (const v of validVolunteers) {
+      const sql = `
+        INSERT INTO volunteer 
+          (nombres, apellidop, apellidom, estado, regionpostulante, tipo_voluntariado, campana, email, telefono, rut, created_at, updated_at)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW(),NOW())
+        ON CONFLICT (rut) DO UPDATE 
+          SET nombres = EXCLUDED.nombres,
+              apellidop = EXCLUDED.apellidop,
+              apellidom = EXCLUDED.apellidom,
+              estado = EXCLUDED.estado,
+              regionpostulante = EXCLUDED.regionpostulante,
+              tipo_voluntariado = EXCLUDED.tipo_voluntariado,
+              campana = EXCLUDED.campana,
+              email = EXCLUDED.email,
+              telefono = EXCLUDED.telefono,
+              updated_at = NOW()
+      `
+      const params = [
+        v.nombres,
+        v.apellidop,
+        v.apellidom || null,
+        v.estado || 1,
+        v.regionpostulante,
+        v.tipo_voluntariado,
+        v.campana || null,
+        v.email || null,
+        v.telefono || null,
+        v.rut || null
+      ]
+      await query(sql, params)
+    }
 
     return NextResponse.json({
       success: true,
       inserted: validVolunteers.length,
       rejected: volunteers.length - validVolunteers.length,
-      message: `Successfully inserted ${validVolunteers.length} volunteers`,
+      message: `Successfully inserted ${validVolunteers.length} volunteers`
     })
+
   } catch (error) {
     console.error("[API ERROR]", error)
     return NextResponse.json({ success: false, error: "Error in bulk insert" }, { status: 500 })
