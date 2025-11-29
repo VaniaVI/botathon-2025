@@ -79,24 +79,19 @@ export function SearchFilters({
 
           {/* Estado */}
 <Select
-  value={filters.estadoVoluntario?.toString() || "Todos"} // para mostrar placeholder
+  value={filters.estadoVoluntario?.toString() || ""}
   onValueChange={(value) =>
     onFilterChange({
       ...filters,
-      estadoVoluntario: value === "Todos" ? undefined : Number(value) as 1 | 2 | 3,
+      estadoVoluntario: value ? Number(value) as 1|2|3 : undefined,
     })
   }
 >
-  <SelectTrigger>
-    <SelectValue placeholder="Todos los estados" />
-  </SelectTrigger>
-  <SelectContent>
-    <SelectItem value="Todos">Todos</SelectItem> {/* solo UI */}
-    <SelectItem value="1">Activo</SelectItem>
-    <SelectItem value="2">Inactivo</SelectItem>
-    <SelectItem value="3">Pendiente</SelectItem>
-  </SelectContent>
+  <SelectItem value="1">Activo</SelectItem>
+  <SelectItem value="2">Inactivo</SelectItem>
+  <SelectItem value="3">Pendiente</SelectItem>
 </Select>
+
 
 
 
