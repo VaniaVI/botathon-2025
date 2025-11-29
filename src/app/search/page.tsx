@@ -7,6 +7,29 @@ import type { FilterOptions, Volunteer } from "@/types/volunteer"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
+function validarRut(rut: string) {
+  rut = rut.replace(/\./g, "").replace("-", "")
+
+  if (rut.length < 8) return false
+
+  const cuerpo = rut.slice(0, -1)
+  let dv = rut.slice(-1).toUpperCase()
+
+  let suma = 0
+  let multiplo = 2
+
+  for (let i = cuerpo.length - 1; i >= 0; i--) {
+    suma += parseInt(cuerpo[i], 10) * multiplo
+    multiplo = multiplo < 7 ? multiplo + 1 : 2
+  }
+
+  const dvCalculado = 11 - (suma % 11)
+  const dvFinal =
+    dvCalculado === 11 ? "0" : dvCalculado === 10 ? "K" : dvCalculado.toString()
+
+  return dv === dvFinal
+}
+
 export default function SearchPage() {
   const [filters, setFilters] = useState<FilterOptions>({})
   const [volunteers, setVolunteers] = useState<Volunteer[]>([])
@@ -19,7 +42,10 @@ export default function SearchPage() {
   const [habilidades, setHabilidades] = useState<string[]>([])
   const [campanas, setCampanas] = useState<string[]>([])
 
-  // 🔹 Traer filtros iniciales
+  const [errorNombre, setErrorNombre] = useState("")
+  const [errorRut, setErrorRut] = useState("")
+
+  // 🔹 Traer filtros iniciales + voluntarios iniciales
   useEffect(() => {
     const fetchFilterData = async () => {
       try {
@@ -36,14 +62,18 @@ export default function SearchPage() {
         // Tipos de voluntariado
         const tiposResponse = await fetch("/api/tipoVoluntariado")
         const tiposData = await tiposResponse.json()
-        setTiposVoluntariado(tiposData.map((t: { tipo_voluntariado: string }) => t.tipo_voluntariado))
+        setTiposVoluntariado(
+          tiposData.map((t: { tipo_voluntariado: string }) => t.tipo_voluntariado)
+        )
 
         // Campañas
         const campanasResponse = await fetch("/api/campana")
         const campanasData = await campanasResponse.json()
-        setCampanas(campanasData.map((c: { programa_campana: string }) => c.programa_campana))
+        setCampanas(
+          campanasData.map((c: { programa_campana: string }) => c.programa_campana)
+        )
 
-        // Traer voluntarios iniciales
+        // Voluntarios iniciales (sin filtros)
         const response = await fetch("/api/volunteers/search", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -52,6 +82,7 @@ export default function SearchPage() {
         const result = await response.json()
         if (result.success) {
           setVolunteers(result.data)
+          setTotalCount(result.count ?? result.data.length)
         }
       } catch (error) {
         console.error("[FILTER DATA ERROR]", error)
@@ -62,6 +93,22 @@ export default function SearchPage() {
   }, [])
 
   const handleSearch = async () => {
+    // limpiamos errores primero
+    setErrorNombre("")
+    setErrorRut("")
+
+    const term = filters.searchTerm?.trim() || ""
+    const esRut = /^\d+[-‐-–—−]?[0-9kK]$/.test(term)
+
+    // ✅ Validación de RUT antes de llamar a la API
+    if (term !== "" && esRut && !validarRut(term)) {
+      setErrorRut("El RUT no es válido")
+      setVolunteers([])
+      setTotalCount(0)
+      setSearchDuration("")
+      return
+    }
+
     setLoading(true)
     try {
       const response = await fetch("/api/volunteers/search", {
@@ -69,8 +116,19 @@ export default function SearchPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(filters),
       })
+
       const result = await response.json()
+
       if (result.success) {
+        // si no hay resultados, prendemos el mensaje correspondiente
+        if (result.count === 0 && term !== "") {
+          if (esRut) {
+            setErrorRut("El RUT no existe")
+          } else {
+            setErrorNombre("El nombre no existe")
+          }
+        }
+
         setVolunteers(result.data)
         setTotalCount(result.count)
         setSearchDuration(result.duration)
@@ -87,6 +145,8 @@ export default function SearchPage() {
     setVolunteers([])
     setTotalCount(0)
     setSearchDuration("")
+    setErrorNombre("")
+    setErrorRut("")
   }
 
   return (
@@ -103,7 +163,9 @@ export default function SearchPage() {
               Volver al Dashboard
             </Link>
           </div>
-          <h1 className="mt-4 text-3xl font-bold text-foreground">Búsqueda de Voluntarios</h1>
+          <h1 className="mt-4 text-3xl font-bold text-foreground">
+            Búsqueda de Voluntarios
+          </h1>
           <p className="mt-1 text-muted-foreground">Motor de búsqueda inteligente</p>
         </div>
       </header>
@@ -121,6 +183,9 @@ export default function SearchPage() {
             tiposVoluntariado={tiposVoluntariado}
             habilidades={habilidades}
             campanas={campanas}
+            // 👇 AQUÍ ES DONDE SE CONECTAN LOS MENSAJES 👇
+            errorNombre={errorNombre}
+            errorRut={errorRut}
           />
 
           {(volunteers.length > 0 || loading) && (
